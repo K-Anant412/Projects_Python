@@ -10,6 +10,3 @@ class Employee(db.Model):
     email = db.Column(db.String(200), nullable=False, unique=True)
     salary = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-
-    
