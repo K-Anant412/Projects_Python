@@ -6,7 +6,8 @@ from flask_restx import Namespace, Resource, fields
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_routes = Namespace("auth", description="authentication API")
-user_model = auth_routes.model("User", {"user_name":fields.String(required=True), 
+user_model = auth_routes.model("User", {
+                                        "user_name":fields.String(required=True), 
                                         "email":fields.String(required=True), 
                                         "password":fields.String(required=True)
                                         }
@@ -32,3 +33,19 @@ class Register(Resource):
         db.session.commit()
         
         return success_response("User register successfully", 200)
+    
+@auth_routes.route("/login")    
+class Login(Resource):
+    @auth_routes.expect(user_model)
+    def post(self):
+        data = request.get_json()  
+        user = User.query.filter_by(user_name=data["user_name"]).first()
+        
+        if user and check_password_hash(user.password, data["password"]):
+            return success_response("Login successfully", {
+                                                            "user_name":user.user_name, 
+                                                            "id":user.id 
+                                                            }
+                                    )
+        return error_response("invalid username or password")
+    

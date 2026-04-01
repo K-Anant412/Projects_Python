@@ -8,4 +8,5 @@ class Employee(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
     salary = db.Column(db.Integer, nullable=False)
+    department = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
