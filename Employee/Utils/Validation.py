@@ -12,3 +12,4 @@ def employee_validation(data):
 def department_validation(data):
     if not data.get("name"):
         return "enter department name"
+    

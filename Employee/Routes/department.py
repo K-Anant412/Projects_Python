@@ -1,5 +1,4 @@
 from flask import request
-from DataBase.database import db
 from flask_restx import Namespace, Resource, fields
 from Services.department_service import create_department
 
@@ -12,3 +11,4 @@ class create_dep(Resource):
     def post(self):
         data = request.get_json()
         return create_department(data)
+    

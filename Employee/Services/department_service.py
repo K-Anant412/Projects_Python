@@ -18,3 +18,4 @@ def create_department(data):
         return success_response("department was created")
     except Exception as e:
         return error_response(str(e))
+    
