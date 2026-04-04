@@ -24,7 +24,7 @@ with app.app_context():
     
 api = Api(
           app, 
-          title="employee management AIP",
+          title="employee management API",
           description="a simple employee management API build with Flask", 
           doc="/swagger"
           ) 
