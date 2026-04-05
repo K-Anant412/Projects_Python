@@ -18,6 +18,19 @@ def create_department(data):
         return success_response("department was created" , result)
     except Exception as e:
         return error_response(str(e))
+    
+def show_all_department():
+    try:
+        data = Department.query.all()
+        result = []
+        for dep in data:
+            result.append({
+                "Id":dep.id,
+                "Department": dep.name
+            })
+        return success_response("Departments", result)
+    except Exception as e:
+        return error_response(str(e))
 
 def update_department(id, data):
     try:

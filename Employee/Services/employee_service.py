@@ -49,6 +49,23 @@ def get_emp_by_id(id):
     }
     return success_response("Employee found", result)
 
+def get_emp_by_salary(min_salary, max_salary):
+    try:
+        data = []
+        employees = Employee.query.filter(
+            Employee.salary >= min_salary,
+            Employee.salary <= max_salary
+        ).all()
+        for emp in employees:
+            data.append({
+                "name": emp.name,
+                "salary": emp.salary
+            })
+            
+        return success_response("Employees", data)
+    except Exception as e:
+        return error_response(str(e))
+
 def update_emp_by_id(id, data):
     try:
         emp = db.session.get(Employee, id)

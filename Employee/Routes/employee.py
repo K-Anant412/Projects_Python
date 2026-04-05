@@ -1,7 +1,8 @@
 from flask import request
 from Modules.employee_module import Employee
-from flask_restx import Namespace, Resource, fields
-from Services.employee_service import (create_employee, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee)
+from flask_restx import Namespace, Resource, fields, reqparse
+from Utils.Response import error_response, success_response
+from Services.employee_service import (create_employee, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee, get_emp_by_salary)
 
 employee_route = Namespace("show_employees", description="show all employee's")
 employee_model = employee_route.model("Employee",{
@@ -29,6 +30,19 @@ class show_employee(Resource):
 class show_employee_by_id(Resource):
     def get(self, id) :
         return get_emp_by_id(id)
+    
+parser = reqparse.RequestParser()
+parser.add_argument("min_salary", type=float, required=True)
+parser.add_argument("max_salary", type=float, required=True)
+@employee_route.route("/filter_by_salary")
+class filter_salary(Resource):
+        @employee_route.expect(parser)
+        def get(self):
+            args = parser.parse_args()
+            return get_emp_by_salary(
+                args["min_salary"],
+                args["max_salary"]
+            )
 
 @employee_route.route("/update_employee/<int:id>")
 @employee_route.param("id")
