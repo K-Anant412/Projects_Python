@@ -1,30 +1,24 @@
 from flask import request
-from Modules.employee_module import Employee
 from flask_restx import Namespace, Resource, fields, reqparse
-from Utils.Response import error_response, success_response
 from Services.employee_service import (create_employee, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee, get_emp_by_salary)
 
-employee_route = Namespace("show_employees", description="show all employee's")
+employee_route = Namespace("employees", description="show all employee's")
 employee_model = employee_route.model("Employee",{
-                                              
                                                "name": fields.String(required=True, description="employee name"),
                                                "email": fields.String(required=True, description="employee email"),
                                                "salary": fields.String(required=True, description="employee salary"),
                                                "department": fields.String(required=True, description="employee department")
                                                })
-                                 
 @employee_route.route("/add_employee")
 class create_emp(Resource):
     @employee_route.expect(employee_model)
     def post(self):
         data = request.get_json()
         return create_employee(data)
-    
 @employee_route.route("/show_employee")
 class show_employee(Resource):
     def get(self):
         return get_all_employees() 
-    
 @employee_route.route("/emp_by_id/<int:id>")
 @employee_route.param("id")
 class show_employee_by_id(Resource):
@@ -43,7 +37,6 @@ class filter_salary(Resource):
                 args["min_salary"],
                 args["max_salary"]
             )
-
 @employee_route.route("/update_employee/<int:id>")
 @employee_route.param("id")
 class update_employee(Resource):
@@ -51,14 +44,17 @@ class update_employee(Resource):
     def put(self, id):
         data = request.get_json()
         return update_emp_by_id(id, data)
-
 @employee_route.route("/delete_employee/<int:id>")
 class delete_emp(Resource):
-    @employee_route.param("id")
+    @employee_route.param("id", "Employee ID", _in="path", required=True)
+    @employee_route.doc(params={
+        "role": {
+            "in": "header",
+            "description": "user role admin or superadmin",
+            "required": True
+        }
+    })                        
     def delete(self, id):
-        return delete_employee(id)
-    
-    
-
-    
-    
+        print("API running")
+        role = request.headers.get("Role")
+        return delete_employee(id, role)

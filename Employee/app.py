@@ -4,9 +4,9 @@ from config import config
 from DataBase.database import db
 
 # import class from Module folder to create tables
-from Modules.employee_module import Employee 
-from Modules.user_module import User
-from Modules.department_module import Department
+# from Modules.employee_module import Employee 
+# from Modules.user_module import User
+# from Modules.department_module import Department
 
 # from Routes folder import custom route 
 from Routes.auth_route import auth_routes
@@ -31,7 +31,6 @@ api = Api(
 api.add_namespace(auth_routes)  
 api.add_namespace(employee_route)
 api.add_namespace(department_routes)
-    
+     
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
-   

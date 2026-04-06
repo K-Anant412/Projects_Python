@@ -9,4 +9,5 @@ class User(db.Model):
     email = db.Column(db.String(200), nullable=False, unique=True)
     password = db.Column(db.String(250), nullable=False)
     sign_up_time = db.Column(db.DateTime, default=datetime.utcnow) 
+    role = db.Column(db.String(300), nullable=False, default="Admin")
     

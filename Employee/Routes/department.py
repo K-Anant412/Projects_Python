@@ -15,7 +15,6 @@ class create_dep(Resource):
 class show_dep(Resource):
     def get(self):
         return show_all_department()
-    
 @department_routes.route("/update_department/<int:id>")
 @department_routes.param("id")
 class update_dep(Resource):
