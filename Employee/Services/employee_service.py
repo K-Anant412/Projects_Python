@@ -5,7 +5,6 @@ from Utils.Validation import employee_validation
 from Modules.employee_module import Employee
 from Modules.department_module import Department
 
-#add new employee
 def create_employee(data):
     try:
         error = employee_validation(data)
@@ -26,8 +25,10 @@ def create_employee(data):
     except Exception as e :
         return error_response(str(e))
 
-def get_all_employees():
+def get_all_employees(page=1, per_page=4):
+    pag_obj = Employee.query.paginate(page=page, per_page=per_page, error_out=False)
     employee = Employee.query.all()
+    employee = pag_obj.items
     result = []
     for emp in employee:
         result.append({
@@ -67,16 +68,23 @@ def get_emp_by_salary(min_salary, max_salary):
     except Exception as e:
         return error_response(str(e))
 
-def update_emp_by_id(id, data):
+def update_emp_by_id(id, data, role):
     try:
+        error = check_superadmin(role)
+        if error:
+            return error
+        
         emp = db.session.get(Employee, id)
         if not emp:
             return error_response("Employee not found")
+        
         if "department" in data:
             dept = Department.query.filter_by(name=data["department"]).first()
+            
             if not dept:
                 return error_response("Department not found")
-            emp.id = dept.id
+            emp.department_id = dept.id
+            
         if "name" in data:
             emp.name = data["name"]
         if "email" in data:
@@ -84,11 +92,18 @@ def update_emp_by_id(id, data):
         if "salary" in data:
             emp.salary = data["salary"]
         db.session.commit()
+        
+        dept_name = None
+        if emp.department_id:
+            dept_obj = db.session.get(Department, emp.department_id)
+            if dept_obj:
+                dept_name = dept_obj.name
+
         result = {
             "name": emp.name,
             "email": emp.email,
             "salary": emp.salary,
-            "department": emp.department.name if emp.department else None
+            "department": dept_name # Use the manually fetched name
         }
         return success_response("employee updated", result)
         

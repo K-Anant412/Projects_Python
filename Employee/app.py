@@ -3,11 +3,6 @@ from flask_restx import Api
 from config import config
 from DataBase.database import db
 
-# import class from Module folder to create tables
-# from Modules.employee_module import Employee 
-# from Modules.user_module import User
-# from Modules.department_module import Department
-
 # from Routes folder import custom route 
 from Routes.auth_route import auth_routes
 from Routes.employee import employee_route
