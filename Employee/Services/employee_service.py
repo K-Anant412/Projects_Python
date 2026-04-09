@@ -1,6 +1,6 @@
 from DataBase.database import db
 from Utils.Response import error_response, success_response
-from Utils.Check_role import check_superadmin
+# from Utils.Check_role import check_superadmin
 from Utils.Validation import employee_validation
 from Modules.employee_module import Employee
 from Modules.department_module import Department
@@ -15,9 +15,10 @@ def create_employee(data):
             return error_response("department not found", 400)
         employee = Employee(
                             name=data["name"], 
+                            city=data["city"],
                             email=data["email"], 
                             salary=data["salary"], 
-                            department=dp.id
+                            department_id=dp.id
                             )
         db.session.add(employee)
         db.session.commit()
@@ -34,12 +35,41 @@ def get_all_employees(page=1, per_page=4):
         result.append({
             "Id":emp.id,
             "name":emp.name,
+            "city":emp.city,
             "email":emp.email,
             "salary":emp.salary,
             "department":emp.department_id if emp.department_id else None
         })
     return success_response("Employee fecthed", result)
 
+def search_emp(**kwargs):
+    emp = db.select(Employee)
+    
+    if kwargs.get("id"):
+        emp = emp.filter(Employee.id == kwargs["id"])
+    if kwargs.get("name"):
+        emp = emp.filter(f"%{Employee.name}%")
+    if kwargs.get("city"):
+        emp = emp.filter(Employee.city == kwargs["city"])
+    if kwargs.get("department"):
+        emp = emp.filter(Employee.department == kwargs["department"])
+    
+    result = db.session.execute(emp).scalars().all()
+    
+    if not result:
+        return error_response("No employees found matching criteria", 404)
+    
+    output = []
+    for item in result:
+        output.append({
+            "ID": item.id,
+            "Name": item.name,
+            "City": item.city,
+            "Department": item.department.name if item.department else "No Department"
+        })
+        
+    return success_response(output)
+    
 def get_emp_by_id(id):
     emp = db.session.get(Employee, id)
     if not emp:
@@ -68,12 +98,8 @@ def get_emp_by_salary(min_salary, max_salary):
     except Exception as e:
         return error_response(str(e))
 
-def update_emp_by_id(id, data, role):
+def update_emp_by_id(id, data):
     try:
-        error = check_superadmin(role)
-        if error:
-            return error
-        
         emp = db.session.get(Employee, id)
         if not emp:
             return error_response("Employee not found")
@@ -110,12 +136,8 @@ def update_emp_by_id(id, data, role):
     except Exception as e:
         return error_response(str(e))
     
-    
-def delete_employee(id, role):
+def delete_employee(id):
     try:
-        error = check_superadmin(role)
-        if error:
-            return error
         emp = db.session.get(Employee, id)
         if not emp:
             return error_response("Employee not found")

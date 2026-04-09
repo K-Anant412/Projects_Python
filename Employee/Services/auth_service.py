@@ -2,6 +2,7 @@ from DataBase.database import db
 from Utils.Response import success_response, error_response
 from Modules.user_module import User
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import session
 
 def rigester_user(data):
     try:
@@ -14,7 +15,8 @@ def rigester_user(data):
         user = User(
             user_name= data["user_name"],
             email= data["email"],
-            password= generate_password_hash(data["password"])
+            password= generate_password_hash(data["password"]),
+            role = role
         )
         db.session.add(user)
         db.session.commit()
@@ -27,6 +29,8 @@ def login(data):
         user = User.query.filter_by(email=data["email"]).first()
         
         if user and check_password_hash(user.password, data["password"]):
+            session["user_id"] = user.id
+            session["role"] = user.role
             return success_response("Login successful",{
                 "ID":user.id,
                 "Role":user.role

@@ -1,14 +1,10 @@
 from DataBase.database import db
 from Utils.Response import error_response, success_response
-from Utils.Check_role import check_superadmin
 from Utils.Validation import department_validation
 from Modules.department_module import Department
 
-def create_department(data, role):
+def create_department(data):
     try:
-        user = check_superadmin(role)
-        if user:
-            return user
         error = department_validation(data)
         if error:
             return error_response("enter department name")
@@ -36,11 +32,8 @@ def show_all_department():
     except Exception as e:
         return error_response(str(e))
 
-def update_department(id, data, role):
+def update_department(id, data):
     try:
-        error = check_superadmin(role)
-        if error:
-            return error
         dep = Department.query.get(id)
         if not dep:
             return error_response("department not found")
@@ -50,11 +43,8 @@ def update_department(id, data, role):
     except Exception as e:
         return error_response(str(e))
 
-def delete_department(id, role):
+def delete_department(id):
     try:
-        error = check_superadmin(role)
-        if error:
-            return error
         dep = Department.query.get(id)
         if not dep:
             return error_response("department not found")
