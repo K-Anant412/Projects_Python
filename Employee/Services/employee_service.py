@@ -42,6 +42,27 @@ def get_all_employees(page=1, per_page=4):
         })
     return success_response("Employee fecthed", result)
 
+def sort_emp(page=1, per_page=5):
+    try:
+        page_obj = Employee.query.order_by(Employee.salary).paginate(
+                                            page=page, 
+                                            per_page=per_page, 
+                                            error_out=False
+                                            )
+        employee = page_obj.items
+        data = []
+        for emp in employee:
+            data.append({
+                "Id":emp.id,
+                "name":emp.name,
+                "salary":emp.salary,
+                "department":emp.department_id if emp.department_id else None
+            })
+        return success_response("Employee fetched", data)
+    except Exception as e:
+        return error_response(str(e))
+    
+    
 def search_emp(**kwargs):
     emp = db.select(Employee)
     

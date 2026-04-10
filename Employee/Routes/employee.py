@@ -1,7 +1,7 @@
 from flask import request
 from flask_restx import Namespace, Resource, fields, reqparse
 from Utils.Check_role import check_role
-from Services.employee_service import (create_employee, search_emp, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee, get_emp_by_salary)
+from Services.employee_service import (create_employee, search_emp, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee, get_emp_by_salary, sort_emp)
 
 employee_route = Namespace("employees", description="show all employee's")
 employee_model = employee_route.model("Employee",{
@@ -28,6 +28,16 @@ class show_employee(Resource):
         per_page = request.args.get("per_page", 4, type=int)
         return get_all_employees(page=page, per_page=per_page) 
     
+@employee_route.route("/employee_sort/")
+class sort_employee(Resource):
+    @employee_route.doc(params={
+        'page': {'description': 'Page number', 'type': 'int', 'default': 1},
+        'per_page': {'description': 'Employees per page', 'type': 'int', 'default': 5}
+    })
+    def get(self):
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 5, type=int)
+        return sort_emp(page=page, per_page=per_page)
 @employee_route.route("/get_emp")
 class search(Resource):
     @employee_route.doc(params={
