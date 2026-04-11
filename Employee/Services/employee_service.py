@@ -69,11 +69,12 @@ def search_emp(**kwargs):
     if kwargs.get("id"):
         emp = emp.filter(Employee.id == kwargs["id"])
     if kwargs.get("name"):
-        emp = emp.filter(f"%{Employee.name}%")
+        emp = emp.filter(Employee.name.like(f"%{kwargs['name']}%"))
     if kwargs.get("city"):
         emp = emp.filter(Employee.city == kwargs["city"])
     if kwargs.get("department"):
-        emp = emp.filter(Employee.department == kwargs["department"])
+        # emp = emp.filter(Employee.department_id.name == kwargs["department"])
+        emp = emp.join(Department).filter(Department.name == kwargs['department'])
     
     result = db.session.execute(emp).scalars().all()
     
