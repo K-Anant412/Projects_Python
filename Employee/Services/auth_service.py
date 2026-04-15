@@ -3,7 +3,26 @@ from Utils.Response import success_response, error_response
 from Modules.user_module import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
+from flask_mail import Message
 
+def send_message(to_email, name):
+    msg = Message(
+        subject="Rigesrtation Successful",
+        sender="",
+        recipients=[to_email]  
+    )
+    msg.body = f"""
+        Hello {name},
+
+        Your account has been successfully created 🎉
+
+        Welcome to our Employee Management System!
+
+        Regards,
+        Team
+        """
+    mail.send(msg)
+    
 def rigester_user(data):
     try:
         user = User.query.filter_by(user_name=data["user_name"]).first()
@@ -18,6 +37,9 @@ def rigester_user(data):
             password= generate_password_hash(data["password"]),
             role = role
         )
+        
+        send_message(data["email"], data["user_name"])
+        
         db.session.add(user)
         db.session.commit()
         return success_response("new user added", 200)

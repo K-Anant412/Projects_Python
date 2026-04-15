@@ -12,6 +12,10 @@ class config:
     db_database = os.getenv("DB_NAME")
     
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}"
-    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
+    mail_server = os.getenv("MAIL_SERVER")
+    mail_port = os.getenv("MAIL_PORT")
+    MAIL_USE_TLS=True
+    mail_username = os.getenv("MAIL_USERNAME")
+    mail_password = os.getenv("MAIL_PASSWORD")

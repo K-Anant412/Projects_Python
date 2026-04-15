@@ -1,7 +1,7 @@
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from Utils.Check_role import check_role
-from Services.department_service import (create_department, delete_department, update_department, show_all_department)
+from Services.department_service import (create_department, delete_department, update_department, show_all_department, show_department_emp)
 
 department_routes = Namespace("department", description="creating department")
 department_model = department_routes.model("Department",{"name":fields.String(required=True, description="enter department name")})
@@ -16,6 +16,11 @@ class create_dep(Resource):
 class show_dep(Resource):
     def get(self):
         return show_all_department()
+@department_routes.route("/show_emp_per_dept")
+class show_emp_dept(Resource):
+    def get(self):
+        return show_department_emp()
+
 @department_routes.route("/update_department/<int:id>")
 class update_dep(Resource):
     @department_routes.expect(department_model)

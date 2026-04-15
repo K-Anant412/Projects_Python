@@ -2,6 +2,8 @@ from DataBase.database import db
 from Utils.Response import error_response, success_response
 from Utils.Validation import department_validation
 from Modules.department_module import Department
+from Modules.employee_module import Employee
+from sqlalchemy import func
 
 def create_department(data):
     try:
@@ -29,6 +31,27 @@ def show_all_department():
                 "Department": dep.name
             })
         return success_response("Departments", result)
+    except Exception as e:
+        return error_response(str(e))
+    
+def show_department_emp():
+    try:
+        data = db.session.query(
+            Department.id,
+            Department.name,
+            func.count(Employee.id).label("employee_count")
+        ).outerjoin(Employee, Department.id == Employee.department_id).group_by(Department.id).all()
+        
+        result = []
+        
+        for dep in data:
+            result.append({
+                "ID": dep.id,
+                "Department": dep.name,
+                "Employees": dep.employee_count
+            })
+        
+        return success_response("Department with Employees", result)
     except Exception as e:
         return error_response(str(e))
 

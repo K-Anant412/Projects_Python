@@ -5,3 +5,6 @@ werkzeug
 python-dotenv
 mysqlclient
 streamlit
+reportlab
+Flask-Mail
+pandas

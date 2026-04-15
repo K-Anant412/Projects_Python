@@ -1,9 +1,13 @@
 from DataBase.database import db
+import pandas as pd
 from Utils.Response import error_response, success_response
 # from Utils.Check_role import check_superadmin
 from Utils.Validation import employee_validation
 from Modules.employee_module import Employee
 from Modules.department_module import Department
+from reportlab.platypus import SimpleDocTemplate, Table
+from io import BytesIO
+from flask import send_file, request
 
 def create_employee(data):
     try:
@@ -30,6 +34,7 @@ def get_all_employees(page=1, per_page=4):
     pag_obj = Employee.query.paginate(page=page, per_page=per_page, error_out=False)
     employee = Employee.query.all()
     employee = pag_obj.items
+    
     result = []
     for emp in employee:
         result.append({
@@ -73,7 +78,6 @@ def search_emp(**kwargs):
     if kwargs.get("city"):
         emp = emp.filter(Employee.city == kwargs["city"])
     if kwargs.get("department"):
-        # emp = emp.filter(Employee.department_id.name == kwargs["department"])
         emp = emp.join(Department).filter(Department.name == kwargs['department'])
     
     result = db.session.execute(emp).scalars().all()
@@ -166,5 +170,59 @@ def delete_employee(id):
         db.session.delete(emp)
         db.session.commit()
         return success_response("Employee was deleted")
+    except Exception as e:
+        return error_response(str(e))
+    
+def emp_pdf():
+    try:
+        buffer = BytesIO()
+        
+        doc = SimpleDocTemplate(buffer)
+        
+        employees = Employee.query.all()
+        
+        data = [["ID", "Name", "City", "Contact", "Salary", "Department"]]
+        
+        for emp in employees:
+            data.append([
+                emp.id,
+                emp.name,
+                emp.city,
+                emp.email,
+                emp.salary,
+                emp.department.name if emp.department else "No Department"
+            ])
+            
+        table = Table(data)
+        doc.build([table])
+        buffer.seek(0)
+        
+        return send_file(buffer, as_attachment=True, download_name="employees.pdf", mimetype='application/pdf')
+    except Exception as e:
+        return error_response(str(e))
+    
+def upload_emp(f):
+    try:
+        if not f:
+            return error_response("File not found")
+        
+        df = pd.read_csv(f)
+        
+        employees = []
+        
+        for _, row in df.iterrows():
+            emp = Employee(
+                name = row["name"],
+                email = row["email"],
+                city = row["city"],
+                department_id = row["department_id"],
+                salary = row["salary"]
+            )
+            employees.append(emp)
+            
+        db.session.bulk_save_objects(employees)
+        db.session.commit()
+        
+        return success_response("Employee's added")
     except Exception as e:
         return error_response(str(e))

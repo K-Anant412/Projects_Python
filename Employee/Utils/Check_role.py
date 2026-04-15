@@ -14,13 +14,3 @@ def check_role(allowed_role):
             return func(*args, **kwargs)
         return wrapper
     return decor
-            
-
-def check_superadmin(role):
-    return None
-#     try:
-#         if role != "superadmin":
-#             return error_response("only superadmin allow", 403)
-#         return None
-#     except Exception as e:
-#         return error_response(str(e))
