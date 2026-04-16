@@ -1,5 +1,5 @@
 from flask import request
-from flask_restx import Namespace, Resource, fields, reqparse
+from flask_restx import Namespace, Resource, fields
 from Services.auth_service import rigester_user, login
 
 auth_routes = Namespace("auth", description="authentication API")

@@ -4,11 +4,12 @@ from Modules.user_module import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
 from flask_mail import Message
+from Services.mail_extension import mail
 
 def send_message(to_email, name):
     msg = Message(
         subject="Rigesrtation Successful",
-        sender="",
+        sender="nohilk440@gmail.com",
         recipients=[to_email]  
     )
     msg.body = f"""
@@ -38,10 +39,11 @@ def rigester_user(data):
             role = role
         )
         
-        send_message(data["email"], data["user_name"])
         
         db.session.add(user)
         db.session.commit()
+        send_message(data["email"], data["user_name"])
+        
         return success_response("new user added", 200)
     except Exception as e:
         return error_response(str(e))
