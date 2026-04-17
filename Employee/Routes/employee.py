@@ -4,7 +4,7 @@ from werkzeug.datastructures import FileStorage
 from Utils.Check_role import check_role
 from Services.employee_service import (create_employee, search_emp, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee, get_emp_by_salary, sort_emp, emp_pdf, upload_emp)
 
-employee_route = Namespace("employees", description="show all employee's")
+employee_route = Namespace("employees", description="show all employee's", path='/employee')
 employee_model = employee_route.model("Employee",{
                                                "name": fields.String(description="employee name"),
                                                "city": fields.String(description="employee city"),

@@ -31,7 +31,7 @@ api = Api(
           title="employee management API",
           description="a simple employee management API build with Flask", 
           doc="/swagger",
-          endpoint='/api/v1'
+          prefix='/api/v1'
           ) 
 api.add_namespace(auth_routes)  
 api.add_namespace(employee_route)
