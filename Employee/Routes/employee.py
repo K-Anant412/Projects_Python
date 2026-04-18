@@ -12,7 +12,7 @@ employee_model = employee_route.model("Employee",{
                                                "salary": fields.String(description="employee salary"),
                                                "department": fields.String(description="employee department")
                                                })
-@employee_route.route("/add_employee")# add new employee__
+@employee_route.route("/add_employee", methods=["POST"])# add new employee__
 class create_emp(Resource):
     @employee_route.expect(employee_model)
     def post(self):
