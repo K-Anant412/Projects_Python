@@ -142,7 +142,10 @@ def update_emp_by_id(id, data):
         if "email" in data:
             emp.email = data["email"]
         if "salary" in data:
-            emp.salary = data["salary"]
+            try:
+                emp.salary = float(data["salary"])
+            except:
+                return error_response("Invalid salary format")
         db.session.commit()
         
         dept_name = None
@@ -160,6 +163,7 @@ def update_emp_by_id(id, data):
         return success_response("employee updated", result)
         
     except Exception as e:
+        print(e)
         return error_response(str(e))
     
 def delete_employee(id):

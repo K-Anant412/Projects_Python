@@ -91,7 +91,7 @@ class filter_salary(Resource):
                 args["max_salary"]
             )
             
-@employee_route.route("/update_employee/<int:id>")# update existing employee by ID__
+@employee_route.route("/update_employee/<int:id>", methods=["PUT"])# update existing employee by ID__
 class update_employee(Resource):
     @employee_route.param("id", "employee id", _in="path", required=True)
     @employee_route.expect(employee_model)

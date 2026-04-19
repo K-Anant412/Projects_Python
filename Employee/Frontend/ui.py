@@ -121,7 +121,31 @@ elif menu == "Employee":
               except Exception as e:
                       st.error(e)
           
+    elif emp_menu == "Update employee":
+        st.header("Update Employee")
+        
+        emp_id = st.number_input("id")
+        
+        name = st.text_input("Employee name") 
+        email = st.text_input("employee email")
+        salary = st.number_input("salary")
+   
+        params = {
+                  "name": name,
+                  "email": email,
+                  "salary": str(salary),
+              }
+        
+        if st.button("Update Employee"):
+            url = f"{base_url}/employee/update_employee/{int(emp_id)}"
+            st.write(url)
             
+            res = requests.put(url, json=params)
+            
+            if res.status_code == 200:
+                st.success("Employee Updated")
+            else:
+                st.warning("Something wrong....")           
 elif menu == "Department":
     dep_menu = st.sidebar.selectbox("select",[
                                                 "Show all",
