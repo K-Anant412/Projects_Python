@@ -3,8 +3,22 @@ import requests
 import pandas as pd
 
 base_url = "http://127.0.0.1:5001/api/v1"
+
 st.markdown("""
 <style>
+     .centered-title {
+        width: 70vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh; 
+        font-size: 70px;
+        font-family: 'Courier New', monospace; 
+        font-weight: 600;
+    }
+    .centered-title:hover{
+        color: gray;
+    }
     .stApp {
         background-color: #C0E1D2;
     }
@@ -20,18 +34,19 @@ st.markdown("""
     }
     
     section[data-testid="stSidebar"] {
-    background-color: #DC9B9B;s
+    background-color: #DC9B9B;
     }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("Employee Management System")
-st.write("welcome to my employee management system")
-
 menu = st.sidebar.selectbox("Menu", ["Home", "Employee", "Department"])
 
 if menu == "Home":
-    pass
+    st.markdown("""
+    <div class="centered-title">
+        Employee Management System
+    </div>
+    """, unsafe_allow_html=True)
 
 elif menu == "Employee":
     emp_menu = st.sidebar.selectbox("select", [
@@ -146,6 +161,26 @@ elif menu == "Employee":
                 st.success("Employee Updated")
             else:
                 st.warning("Something wrong....")           
+
+    elif emp_menu == "Find by ID":
+        st.header("Find Employee by ID")
+        
+        emp_id = st.number_input("id", min_value=1, value=1)
+        
+        if st.button("Show Employee"):
+            try:
+                url = f"{base_url}/employee/emp_by_id/{emp_id}"
+                res = requests.get(url)
+                
+                if res.status_code == 200:
+                    data = res.json()
+                    df = pd.DataFrame(data)
+                    st.dataframe(df)
+                else:
+                    st.error("Something is wrong...")
+            except Exception as e:
+                st.error(e)
+
 elif menu == "Department":
     dep_menu = st.sidebar.selectbox("select",[
                                                 "Show all",
