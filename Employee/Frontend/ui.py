@@ -175,6 +175,11 @@ elif menu == "Employee":
                 if res.status_code == 200:
                     data = res.json()
                     df = pd.DataFrame(data)
+                    result = {
+                        "name": data.name,
+                        "id":data.id
+                    }
+                    print(result)
                     st.dataframe(df)
                 else:
                     st.error("Something is wrong...")
