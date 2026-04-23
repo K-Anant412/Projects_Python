@@ -39,7 +39,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-menu = st.sidebar.selectbox("Menu", ["Home", "Employee", "Department"])
+menu = st.sidebar.selectbox("Menu", ["Home", "Employee", "Department", "Sign-in"])
 
 if menu == "Home":
     st.markdown("""
@@ -197,3 +197,5 @@ elif menu == "Department":
                                                 "Update department",
                                                 "Remove department"
                                                ])
+elif menu == "Sign-in":
+    pass
