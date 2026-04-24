@@ -42,7 +42,7 @@ def rigester_user(data):
         
         db.session.add(user)
         db.session.commit()
-        send_message(data["email"], data["user_name"])
+        # send_message(data["email"], data["user_name"])
         
         return success_response("new user added", 200)
     except Exception as e:

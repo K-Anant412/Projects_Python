@@ -198,4 +198,32 @@ elif menu == "Department":
                                                 "Remove department"
                                                ])
 elif menu == "Sign-in":
-    pass
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        name = st.text_input("Enter username")
+        password = st.text_input("Password")
+    with col2:
+        email = st.text_input("Enter email")
+        role = st.text_input("Role")
+        
+        if st.button("Sign-in"):
+                params = {
+                    'user_name': name,
+                    'email': email,
+                    'password': password,
+                    'role': role
+                }
+                try:
+                    full_url = f"{base_url}/auth/Register" 
+                    res = requests.post(full_url, json=params)
+                    
+                    if res.status_code == 200:
+                        st.success("Thank you for Sign-in") 
+                    else:
+                        st.error(f"Error {res.status_code}: {res.text}")
+                                         
+                except Exception as e:
+                    st.error(e)
+        
+    

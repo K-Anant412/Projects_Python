@@ -7,10 +7,10 @@ user_model = auth_routes.model("User", {
                                         "user_name":fields.String(required=True), 
                                         "email":fields.String(required=True), 
                                         "password":fields.String(required=True),
-                                        "role":fields.String(reuqired=True)
+                                        "role":fields.String(required=True)
                                         }
                                )
-@auth_routes.route("/Register")
+@auth_routes.route("/Register", methods=["POST"])
 class Register(Resource):
     @auth_routes.expect(user_model)
     def post(self):
