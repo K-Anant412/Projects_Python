@@ -7,17 +7,12 @@ base_url = "http://127.0.0.1:5001/api/v1"
 st.markdown("""
 <style>
      .centered-title {
-        width: 70vw;
         display: flex;
         justify-content: center;
-        align-items: center;
-        height: 80vh; 
-        font-size: 70px;
-        font-family: 'Courier New', monospace; 
-        font-weight: 600;
-    }
-    .centered-title:hover{
-        color: gray;
+        align-items: left;
+        flex-direction: column;
+        width: 60vw;
+        height: 60vh; 
     }
     .stApp {
         background-color: #C0E1D2;
@@ -32,7 +27,10 @@ st.markdown("""
         color: white;
         border-radius: 10px;
     }
-    
+    .heading{
+        font-size: 80px !important;
+        font-weight: 700;
+    }
     section[data-testid="stSidebar"] {
     background-color: #DC9B9B;
     }
@@ -42,9 +40,11 @@ st.markdown("""
 menu = st.sidebar.selectbox("Menu", ["Home", "Employee", "Department", "Sign-in"])
 
 if menu == "Home":
-    st.markdown("""
+   st.markdown("""
     <div class="centered-title">
-        Employee Management System
+        <p class="heading">Employee</p>
+        <p class="heading">Management</p>
+        <p class="heading">System</p>
     </div>
     """, unsafe_allow_html=True)
 
