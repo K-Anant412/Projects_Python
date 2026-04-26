@@ -63,3 +63,15 @@ def login(data):
         return error_response("invalid username or password")
     except Exception as e:
         return error_response(str(e))
+def change(data):
+    try:
+        user = User.query.filter_by(email=data["email"]).first()
+        
+        if user and check_password_hash(user.password, data["password"]):
+            user.password = generate_password_hash(data["new_password"])
+            db.session.commit()
+            
+            return success_response("New password was updated")
+        return error_response("User not found")
+    except Exception as e:
+        return error_response(str(e))

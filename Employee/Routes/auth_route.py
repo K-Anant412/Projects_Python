@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource, fields
-from Services.auth_service import rigester_user, login
+from Services.auth_service import rigester_user, login, change
 
 auth_routes = Namespace("auth", description="authentication API")
 user_model = auth_routes.model("User", {
@@ -27,3 +27,15 @@ class Login(Resource):
     def post(self):
         data = request.get_json()
         return login(data)
+    
+password_model = auth_routes.model("Login", {
+                                        "email":fields.String(required=True),
+                                        "password":fields.String(required=True),
+                                        "new_password":fields.String(required=True)
+                                        })
+@auth_routes.route("/change_password")
+class change_password(Resource):
+    @auth_routes.expect(password_model)
+    def put(self):
+        data = request.get_json()
+        return change(data)
