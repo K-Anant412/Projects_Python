@@ -14,6 +14,7 @@ from Services.mail_extension import mail
 from Modules.employee_module import Employee
 from Modules.attendance_module import Attendance
 
+
 app = Flask(__name__)
 CORS(app)
 mail.init_app(app)

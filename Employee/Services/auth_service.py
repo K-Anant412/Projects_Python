@@ -29,8 +29,9 @@ def rigester_user(data):
         user = User.query.filter_by(user_name=data["user_name"]).first()
         if user:
             return error_response("user already exist", 400)
-        role = data.get("role", "Admin")
-        if role not in ["admin", "superadmin"]:
+        role = data.get("role", "employee").lower()
+        valid_roles = ["admin", "superadmin", "employee"]
+        if role not in valid_roles:
             return error_response("not exist", 400)
         user = User(
             user_name= data["user_name"],

@@ -15,6 +15,7 @@ class Register(Resource):
     @auth_routes.expect(user_model)
     def post(self):
         data = request.get_json()
+        # print(data)
         return rigester_user(data)
     
 login_model = auth_routes.model("Login", {
