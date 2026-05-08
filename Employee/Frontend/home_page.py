@@ -63,8 +63,6 @@ def home():
                 """
             , unsafe_allow_html=True)
             
-            st.write("Hello, User......")
-            
             emp_menu = ["Add Employee", "Update Employee", "Show Employees", "Search Employee", "Delete"]
             dept_menu = ["Add Department", "Show Departments", "Update Department", "Delete Department", "Show Employees"]
             
@@ -72,9 +70,11 @@ def home():
             
             with col1:
                 if st.button("Employee"):
+                    st.subheader("Manage Employees")
                     st.selectbox("Options", emp_menu)
             with col2:
                 if st.button("Department"):
+                    st.subheader("Manage Department")
                     st.selectbox("Options", dept_menu)
         
         except Exception as e:
