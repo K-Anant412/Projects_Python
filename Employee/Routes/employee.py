@@ -39,7 +39,7 @@ class show_employee(Resource):
         
         return get_all_employees(page=page, per_page=per_page) 
     
-@employee_route.route("/employee_sort/")# sort employees by salary
+@employee_route.route("/employee_sort/", methods=["GET"])# sort employees by salary
 class sort_employee(Resource):
     @employee_route.doc(params={
         'page': {
@@ -59,7 +59,7 @@ class sort_employee(Resource):
         per_page = request.args.get("per_page", 5, type=int)
         
         return sort_emp(page=page, per_page=per_page)
-@employee_route.route("/get_emp")
+@employee_route.route("/get_emp", methods=["GET"])
 class search(Resource):
     @employee_route.doc(params={
         "id":"Employee ID",
@@ -71,7 +71,7 @@ class search(Resource):
         data = request.args.to_dict()
         return search_emp(**data)
     
-@employee_route.route("/emp_by_id/<int:id>")# show employee by ID__
+@employee_route.route("/employee_by_id/<int:id>")# show employee by ID__
 @employee_route.param("id")
 class show_employee_by_id(Resource):
     def get(self, id) :
@@ -95,7 +95,7 @@ class filter_salary(Resource):
 class update_employee(Resource):
     @employee_route.param("id", "employee id", _in="path", required=True)
     @employee_route.expect(employee_model)
-    @check_role(["superadmin", "admin"])
+    @check_role(["superadmin"])
     def put(self, id):
         data = request.get_json()
         return update_emp_by_id(id, data)
@@ -103,7 +103,7 @@ class update_employee(Resource):
 @employee_route.route("/delete_employee/<int:id>")# remove employee by ID__
 class delete_emp(Resource):
     @employee_route.param("id", "Employee ID", _in="path", required=True)
-    @check_role(["superadmin"])                       
+    # @check_role(["superadmin"])                       
     def delete(self, id):
         return delete_employee(id)
 

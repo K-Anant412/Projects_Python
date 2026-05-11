@@ -17,7 +17,8 @@ def create_department(data):
             "id": department.id,
             "name": department.name
         }
-        return success_response("department was created" , result)
+        # return success_response("department was created" , result)
+        return result
     except Exception as e:
         return error_response(str(e))
     
@@ -74,5 +75,18 @@ def delete_department(id):
         db.session.delete(id)
         db.session.commit()
         return success_response("department was deleted") 
+    except Exception as e:
+        return error_response(str(e))
+    
+def fetch_department(id):
+    try:
+       dep = Department.query.get(id)
+       if not dep:
+           return error_response("department not found")
+       result = {
+           "ID": dep.id,
+           "Name": dep.name
+       }
+       return result
     except Exception as e:
         return error_response(str(e))
