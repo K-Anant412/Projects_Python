@@ -20,7 +20,7 @@ if os.path.exists(path_to_img):
             f"""
             <style>
             .stApp {{
-                    background-image: url("data:image/png;base64,{bin_str}");
+                    background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url("data:image/png;base64,{bin_str}");
                     background-size: cover;
                     background-repeat: no-repeat;
                     background-attachment: fixed;
@@ -30,8 +30,8 @@ if os.path.exists(path_to_img):
                     transform: scaleX(-1);    
                     }}
             [data-testid="stSidebar"] {{
-                background: #6FD1D7;
-                backdrop-filter: blur(10px);
+                background: rgba(0, 0, 0, 0.35);
+                backdrop-filter: blur(12px);
             }}
             </style>
             """,
@@ -123,7 +123,7 @@ def main_dashboard():
     
     if choice == "Employee":
         st.subheader("Employee Management")
-        tab1, tab2, tab3, tab4 = st.tabs(["Add Employee", "Update Employee", "Employee List", "Delete Employee"])
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(["Add", "Update", "Employee List", "Delete", "Search"])
         
         with tab1:
             st.subheader("Add New Employee")
@@ -249,16 +249,118 @@ def main_dashboard():
                                         department = st.text_input("department", value=employee.get("department"))
                             
                             if st.button("Delete"):
-                                response = requests.delete(delete_url)
+                                result = requests.delete(delete_url)
                                 
-                                if response.status_code == 200:
+                                if result.status_code == 200:
                                     st.success("Employee Removed")
                                 else:
                                     st.error("Server Error")
     elif choice == "Department":
+        department_url = f"{base_url}/department"
         st.subheader("Department")
-        tab1, tab2, tab3 = st.tabs(["Show All", "Add department", "Employees"])
+        tab1, tab2, tab3= st.tabs(["Show All", "Manage", "Employees"])
         
+        with tab1:
+            show_url = f"{department_url}/show_department"
+            st.subheader("Departments:")
+            
+            response = requests.get(show_url)           
+            if response.status_code == 200:
+                    raw_data = response.json()
+                    
+                    if "Data" in raw_data:
+                        department = raw_data["Data"]
+                        df = pd.DataFrame(department)
+                        st.dataframe(df, use_container_width=True, hide_index=True)
+            
+        with tab2:
+            dept_choice = st.selectbox("Operations:", [" ", "Add Department", "Update Department", "Remove Department"])
+            
+            if dept_choice == "Add Department":
+                st.subheader("Add Department")
+                name = st.text_input("name", key="dept_name")
+                
+                if st.button("Add Department"):
+                    full_url = f"{department_url}/add_department"
+                    response = requests.post(full_url, json={"name":name})
+                    
+                    if response.status_code == 200:
+                        st.success(f"{name}: Department Added")
+                    else:
+                        st.error("Server Error")
+                        st.write(response.json())
+                        
+            elif dept_choice == "Update Department":
+                st.subheader("Update Information")
+                
+                dept_id = st.number_input("department ID")
+                name = st.text_input("name")
+                update_url = f"{department_url}/update_department/{dept_id}"
+                
+                if st.button("Update"):
+                    response = requests.put(update_url, json={"name":name})
+                    
+                    if response.status_code == 200:
+                        st.success("Department updated")
+                    else:
+                        st.warning("something wrong")
+            
+            elif dept_choice == "Remove Department":
+                st.subheader("Remove Department")
+                
+                dept_id = st.number_input("department id", min_value=1, key="remove_dept_key")
+                fetch_dept = f"{base_url}/department/fetch_dept_id/{dept_id}"
+                if st.button("remove"):
+                    response = requests.get(fetch_dept)
+                    if response.status_code == 200:
+                        data = response.json()
+                        df = pd.DataFrame([data])    
+                        st.dataframe(df, use_container_width=True, hide_index=True)
+                        delete_dept_url = f"{department_url}/delete_department/{dept_id}"    
+                        
+                        if st.button("Delete"):
+                            
+                            result = requests.delete(delete_dept_url)
+                            if result.status_code == 200:
+                                st.success("This Department is no longer Used")
+                            else:
+                                st.warning("Server Error")
+                                st.write(result.json())
+        
+        with tab3:
+            st.subheader("Department Dashboard")
+            
+            department_dashboard_url = f"{department_url}/employww_per_deptartment"
+            
+            response = requests.get(department_dashboard_url)
+
+            if response.status_code == 200:
+                data = response.json()
+                departments = data["Data"]
+                df = pd.DataFrame(departments)
+
+                total_departments = len(df)
+                total_employees = df["Employees"].sum()
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Total Departments", total_departments)
+                with col2:
+                    st.metric("Total Employees", total_employees)
+
+                st.divider()
+
+                st.subheader("Employees Per Department")
+                chart_df = df.set_index("Department")
+                st.bar_chart(chart_df["Employees"])
+
+                st.divider()
+
+                st.subheader("Department Details")
+                st.dataframe(df, use_container_width=True )
+            else:
+                st.error("Failed to load dashboard")
+            
     elif choice == "Attendance":
         st.subheader("Employee Records")
         pass

@@ -16,7 +16,7 @@ class create_dep(Resource):
 class show_dep(Resource):
     def get(self):
         return show_all_department()
-@department_routes.route("/show_emp_per_dept")
+@department_routes.route("/employww_per_deptartment")
 class show_emp_dept(Resource):
     def get(self):
         return show_department_emp()
