@@ -103,7 +103,9 @@ def get_emp_by_id(id):
     result = {
         "name":emp.name,
         "email":emp.email,
-        "salary":emp.salary
+        "salary":emp.salary,
+        "city":emp.city,
+        "department":emp.department.name if emp.department else "No employee found"
     }
     return success_response("Employee found", result)
 
