@@ -95,7 +95,7 @@ class filter_salary(Resource):
 class update_employee(Resource):
     @employee_route.param("id", "employee id", _in="path", required=True)
     @employee_route.expect(employee_model)
-    @check_role(["superadmin"])
+    # @check_role(["superadmin"])
     def put(self, id):
         data = request.get_json()
         return update_emp_by_id(id, data)

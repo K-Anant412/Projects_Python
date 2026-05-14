@@ -1,5 +1,5 @@
 from flask import request
-from Services.employee_records_service import show_all_employees
+from Services.employee_records_service import show_all_employees, employee_month_analysis
 from flask_restx import Namespace, fields, Resource
 from Modules.attendance_module import Attendance
 from datetime import date
@@ -22,8 +22,10 @@ class show_employee_list(Resource):
     
 @records_route.route("/attendance")
 class employee_attendance(Resource):
+
     @records_route.expect(records_attendance)
     def post(self):
+
         try:
             data = request.get_json()
             records = data.get("records", [])
@@ -31,24 +33,31 @@ class employee_attendance(Resource):
             for record in records:
                 emp_id = record.get("employee_id")
                 status = record.get("status")
-            
+
                 existing = Attendance.query.filter_by(
-                            employee_id=emp_id,
-                            date=date.today()
-                        ).first()
+                    employee_id=emp_id,
+                    attendance_date=date.today()
+                ).first()
                 if existing:
                     continue
-                
                 attendance = Attendance(
-                    employee_id = emp_id,
-                    status = status,
-                    date = date.today()
+                    employee_id=emp_id,
+                    status=status,
+                    attendance_date=date.today()
                 )
-    
                 db.session.add(attendance)
             db.session.commit()
-            
-            return success_response('Employee present')
-        
+            return success_response(
+                "Attendance marked successfully"
+            )
         except Exception as e:
+            db.session.rollback()
             return error_response(str(e))
+
+
+@records_route.route("/month_analysis/<int:id>")
+@records_route.param("id")
+class employee_analysis(Resource):
+    
+    def get(self, id):
+        return employee_month_analysis(id)
