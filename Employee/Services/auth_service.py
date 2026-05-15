@@ -56,10 +56,13 @@ def login(data):
         if user and check_password_hash(user.password, data["password"]):
             session["user_id"] = user.id
             session["role"] = user.role
-            return success_response("Login successful",{
-                "ID":user.id,
-                "Role":user.role
-            })
+            result = {
+                "ID": user.id,
+                "user_name": user.user_name,
+                "email": user.email,
+                "Role": user.role
+            }
+            return success_response("Login successful",result)
             
         return error_response("invalid username or password")
     except Exception as e:

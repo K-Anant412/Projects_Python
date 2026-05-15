@@ -51,7 +51,7 @@ def login_user(email, password):
         )
         if response.status_code == 200:
             st.session_state.authenticated = True
-            st.session_state.user_data = response.json().get("data", {})
+            st.session_state.user_data = response.json().get("Data", {})
             st.rerun()
         else:
             st.error("Invalid credentials")
@@ -125,14 +125,80 @@ def main_dashboard():
         employee_url = f"{base_url}/employee"
         
         with tab1:
-            pass
-            # st.subheader("Add New Employee")
+            BASE_URL = "http://127.0.0.1:5001/api/v1"
+
+            st.set_page_config(
+                page_title="Employee Dashboard",
+                layout="wide"
+            )
+
+            st.title("Employee Management Dashboard")
+            st.caption("Manage employees, analytics, reports, and departments.")
+
+            st.divider()
+
+            response = requests.get(
+                f"{BASE_URL}/employee/show_employee?page=1&per_page=10"
+            )
+            data = response.json()
+            employees = data.get("Data", [])
+            df = pd.DataFrame(employees)
+
+
+            if not df.empty:
+                total_emp = len(df)
+                avg_salary = round(df["salary"].astype(float).mean(), 2)
+                max_salary = df["salary"].astype(float).max()
+                total_departments = df["department"].nunique()
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.metric("Total Employees", total_emp)
+                with col2:
+                    st.metric("Departments", total_departments)
+                with col3:
+                    st.metric("Average Salary", f"₹ {avg_salary}")
+                with col4:
+                    st.metric("Highest Salary", f"₹ {max_salary}")
+
+            st.divider()
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("Department Distribution")
+                dept_data = df["department"].value_counts()
+                st.bar_chart(dept_data)
+            with col2:
+                st.subheader("Salary Distribution")
+                salary_data = df["salary"].astype(float)
+                st.line_chart(salary_data)
+
+            st.divider()
+
+
+            st.subheader("Recently Added Employees")
+            recent_df = df.tail(5)
+            st.dataframe(
+                recent_df,
+                use_container_width=True
+            )
+            
+            st.divider()
+
+            st.subheader("Top Paid Employees")
+            top_salary = df.sort_values(
+                by="salary",
+                ascending=False
+            ).head(5)
+            st.dataframe(
+                top_salary,
+                use_container_width=True
+            )
             
         with tab2:
             st.subheader("Manage Employees")
             
-            choice = st.selectbox(">", options=["Add Employee", "Update Employee", "Remove Employee"])
-            if choice == "Add Emplopyee":
+            choice = st.selectbox(">", options=["Add Employee", "Update Employee", "Remove Employee", "Reports"])
+            if choice == "Add Employee":
                 c1, c2 = st.columns(2)
 
                 with st.form("add_form"):
@@ -243,6 +309,26 @@ def main_dashboard():
                                     st.success("Employee Removed")
                                 else:
                                     st.error("Server Error")
+            elif choice == "Reports":
+                API_URL = f"{employee_url}/get_pdf_data"
+
+                if st.button("Download Employee PDF"):
+
+                    response = requests.get(API_URL)
+
+                    if response.status_code == 200:
+
+                        st.download_button(
+                            label="Click Here to Download",
+                            data=response.content,
+                            file_name="employees.pdf",
+                            mime="application/pdf"
+                        )
+
+                        st.success("PDF generated successfully!")
+
+                    else:
+                        st.error("Failed to generate PDF")
         
         with tab3:
             st.subheader("Employee List")

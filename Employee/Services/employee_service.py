@@ -9,6 +9,19 @@ from reportlab.platypus import SimpleDocTemplate, Table
 from io import BytesIO
 from flask import send_file, request
 
+from io import BytesIO
+from flask import send_file
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer
+)
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import letter, landscape
+
 def create_employee(data):
     try:
         error = employee_validation(data)
@@ -43,7 +56,7 @@ def get_all_employees(page=1, per_page=4):
             "city":emp.city,
             "email":emp.email,
             "salary":emp.salary,
-            "department":emp.department_id if emp.department_id else None
+            "department":emp.department.name if emp.department else "No Department"
         })
     return success_response("Employee fecthed", result)
 
@@ -66,7 +79,6 @@ def sort_emp(page=1, per_page=5):
         return success_response("Employee fetched", data)
     except Exception as e:
         return error_response(str(e))
-    
     
 def search_emp(**kwargs):
     emp = db.select(Employee)
@@ -182,28 +194,94 @@ def delete_employee(id):
 def emp_pdf():
     try:
         buffer = BytesIO()
-        
-        doc = SimpleDocTemplate(buffer)
-        
+       
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=landscape(letter),
+            rightMargin=20,
+            leftMargin=20,
+            topMargin=20,
+            bottomMargin=20
+        )
+        elements = []
+
+        styles = getSampleStyleSheet()
+        title = Paragraph(
+            "<b>Employee Management Report</b>",
+            styles['Title']
+        )
+        elements.append(title)
+        elements.append(Spacer(1, 20))
+
         employees = Employee.query.all()
-        
-        data = [["ID", "Name", "City", "Contact", "Salary", "Department"]]
-        
+        data = [[
+            "ID",
+            "Name",
+            "City",
+            "Email",
+            "Salary",
+            "Department"
+        ]]
+
         for emp in employees:
             data.append([
                 emp.id,
                 emp.name,
                 emp.city,
                 emp.email,
-                emp.salary,
+                f"₹ {emp.salary}",
                 emp.department.name if emp.department else "No Department"
             ])
-            
-        table = Table(data)
-        doc.build([table])
-        buffer.seek(0)
         
-        return send_file(buffer, as_attachment=True, download_name="employees.pdf", mimetype='application/pdf')
+        table = Table(data, colWidths=[40, 120, 100, 220, 90, 150])
+        style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
+
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+
+        ])
+
+        for i in range(1, len(data)):
+            if i % 2 == 0:
+                bg_color = colors.lightgrey
+            else:
+                bg_color = colors.beige
+
+            style.add(
+                'BACKGROUND',
+                (0, i),
+                (-1, i),
+                bg_color
+            )
+
+        table.setStyle(style)
+
+        elements.append(table)
+
+        doc.build(elements)
+
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name="employees.pdf",
+            mimetype="application/pdf"
+        )
+
     except Exception as e:
         return error_response(str(e))
     
