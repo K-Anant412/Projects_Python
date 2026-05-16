@@ -566,23 +566,369 @@ def main_dashboard():
     
     elif choice == "Salary":
         st.subheader("Salary Analysis")
-        emp_id = st.number_input("Employee ID:", min_value=1, key="employee_salary_id")
-        employee_Search_url = f"{base_url}/employee_records/month_analysis/{emp_id}"
-        if st.button("Calculate"):
-            response = requests.get(employee_Search_url)
+        st.subheader("💰 Payroll Management")
 
-            if response.status_code == 200:
-                raw_data = response.json()
+        tab1, tab2, tab3 = st.tabs([
+            "Generate Payroll",
+            "View Payroll",
+            "Yearly Bonus"
+        ])
 
-                if "Data" in raw_data:
-                    employee = raw_data["Data"]
-                    df = pd.DataFrame([employee])
-                    st.write("Employee Details:")
-                    st.dataframe(df, use_container_width=True, hide_index=True)
-                else:
-                    st.warning(f"Error: {response.json()}")
-            else:
-                st.warning(f"Error: {response.json()}")
+        # =====================================================
+        # GENERATE PAYROLL
+        # =====================================================
+
+        with tab1:
+
+            st.markdown("### Generate Monthly Payroll")
+
+            employee_id = st.number_input(
+                "Enter Employee ID",
+                min_value=1,
+                step=1,
+                key="generate_payroll"
+            )
+
+            if st.button(
+                "Generate Payroll",
+                use_container_width=True
+            ):
+
+                try:
+
+                    response = requests.post(
+                        f"{base_url}/payroll/generate/{employee_id}"
+                    )
+
+                    result = response.json()
+
+                    if response.status_code in [200, 201]:
+
+                        data = result.get("Data", {})
+
+                        st.success(
+                            result.get(
+                                "Message",
+                                "Payroll generated successfully"
+                            )
+                        )
+
+                        col1, col2 = st.columns(2)
+
+                        with col1:
+
+                            st.metric(
+                                "Employee",
+                                data.get(
+                                    "Employee Name",
+                                    "N/A"
+                                )
+                            )
+
+                            st.metric(
+                                "Department",
+                                data.get(
+                                    "Department",
+                                    "N/A"
+                                )
+                            )
+
+                            st.metric(
+                                "Monthly Salary",
+                                f"₹ {data.get('Monthly Salary', 0)}"
+                            )
+
+                            st.metric(
+                                "Attendance %",
+                                f"{data.get('Attendance Percentage', 0)}%"
+                            )
+
+                        with col2:
+
+                            st.metric(
+                                "Present Days",
+                                data.get(
+                                    "Present Days",
+                                    0
+                                )
+                            )
+
+                            st.metric(
+                                "Absent Days",
+                                data.get(
+                                    "Absent Days",
+                                    0
+                                )
+                            )
+
+                            st.metric(
+                                "Half Days",
+                                data.get(
+                                    "Half Days",
+                                    0
+                                )
+                            )
+
+                            st.metric(
+                                "Bonus",
+                                f"₹ {data.get('Bonus', 0)}"
+                            )
+
+                        st.divider()
+
+                        st.metric(
+                            "Final Salary",
+                            f"₹ {data.get('Final Salary', 0)}"
+                        )
+
+                        st.balloons()
+
+                    else:
+
+                        st.error(
+                            result.get(
+                                "Message",
+                                "Failed to generate payroll"
+                            )
+                        )
+
+                except Exception as e:
+
+                    st.error(str(e))
+
+        # =====================================================
+        # VIEW PAYROLL
+        # =====================================================
+
+        with tab2:
+
+            st.markdown("### View Employee Payroll")
+
+            employee_id = st.number_input(
+                "Enter Employee ID",
+                min_value=1,
+                step=1,
+                key="view_payroll"
+            )
+
+            if st.button(
+                "Fetch Payroll",
+                use_container_width=True
+            ):
+
+                try:
+
+                    response = requests.get(
+                        f"{base_url}/payroll/employee/{employee_id}"
+                    )
+
+                    result = response.json()
+
+                    if response.status_code == 200:
+
+                        data = result.get("Data", {})
+
+                        st.success(
+                            result.get(
+                                "Message",
+                                "Payroll fetched successfully"
+                            )
+                        )
+
+                        col1, col2 = st.columns(2)
+
+                        with col1:
+
+                            st.metric(
+                                "Employee",
+                                data.get(
+                                    "Employee Name",
+                                    "N/A"
+                                )
+                            )
+
+                            st.metric(
+                                "Department",
+                                data.get(
+                                    "Department",
+                                    "N/A"
+                                )
+                            )
+
+                            st.metric(
+                                "Month",
+                                data.get(
+                                    "Month",
+                                    "N/A"
+                                )
+                            )
+
+                        with col2:
+
+                            st.metric(
+                                "Salary",
+                                f"₹ {data.get('Total Salary', 0)}"
+                            )
+
+                            st.metric(
+                                "Deduction",
+                                f"₹ {data.get('Total Deduction', 0)}"
+                            )
+
+                            st.metric(
+                                "Bonus",
+                                f"₹ {data.get('Bonus', 0)}"
+                            )
+
+                        st.divider()
+
+                        st.metric(
+                            "Final Salary",
+                            f"₹ {data.get('Final Salary', 0)}"
+                        )
+
+                    else:
+
+                        st.error(
+                            result.get(
+                                "Message",
+                                "Payroll not found"
+                            )
+                        )
+
+                except Exception as e:
+
+                    st.error(str(e))
+
+        # =====================================================
+        # YEARLY BONUS REPORT
+        # =====================================================
+
+        with tab3:
+
+            st.markdown("### Yearly Bonus Report")
+
+            employee_id = st.number_input(
+                "Enter Employee ID",
+                min_value=1,
+                step=1,
+                key="yearly_bonus"
+            )
+
+            if st.button(
+                "Fetch Bonus Report",
+                use_container_width=True
+            ):
+
+                try:
+
+                    response = requests.get(
+                        f"{base_url}/payroll/yearly_bonus/{employee_id}"
+                    )
+
+                    result = response.json()
+
+                    if response.status_code == 200:
+
+                        data = result.get("Data", {})
+
+                        st.success(
+                            result.get(
+                                "Message",
+                                "Bonus report fetched"
+                            )
+                        )
+
+                        col1, col2 = st.columns(2)
+
+                        with col1:
+
+                            st.metric(
+                                "Employee",
+                                data.get(
+                                    "Employee Name",
+                                    "N/A"
+                                )
+                            )
+
+                            st.metric(
+                                "Department",
+                                data.get(
+                                    "Department",
+                                    "N/A"
+                                )
+                            )
+
+                        with col2:
+
+                            st.metric(
+                                "Total Yearly Bonus",
+                                f"₹ {data.get('Total Yearly Bonus', 0)}"
+                            )
+
+                            st.metric(
+                                "Total Yearly Salary",
+                                f"₹ {data.get('Total Yearly Salary', 0)}"
+                            )
+
+                        st.divider()
+
+                        st.subheader("📄 Monthly Payroll History")
+
+                        monthly_reports = data.get(
+                            "Monthly Reports",
+                            []
+                        )
+
+                        if monthly_reports:
+
+                            df = pd.DataFrame(
+                                monthly_reports
+                            )
+
+                            st.dataframe(
+                                df,
+                                use_container_width=True,
+                                hide_index=True
+                            )
+
+                        else:
+
+                            st.warning(
+                                "No payroll history found"
+                            )
+
+                    else:
+
+                        st.error(
+                            result.get(
+                                "Message",
+                                "Failed to fetch report"
+                            )
+                        )
+
+                except Exception as e:
+
+                    st.error(str(e))
+        # {
+        # emp_id = st.number_input("Employee ID:", min_value=1, key="employee_salary_id")
+        # employee_Search_url = f"{base_url}/employee_records/month_analysis/{emp_id}"
+        # if st.button("Calculate"):
+        #     response = requests.get(employee_Search_url)
+
+        #     if response.status_code == 200:
+        #         raw_data = response.json()
+
+        #         if "Data" in raw_data:
+        #             employee = raw_data["Data"]
+        #             df = pd.DataFrame([employee])
+        #             st.write("Employee Details:")
+        #             st.dataframe(df, use_container_width=True, hide_index=True)
+        #         else:
+        #             st.warning(f"Error: {response.json()}")
+        #     else:
+        #         st.warning(f"Error: {response.json()}")
+        #}
 
 init_session()
 
