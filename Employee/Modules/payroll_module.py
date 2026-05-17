@@ -28,3 +28,8 @@ class Payroll(db.Model):
         db.DateTime,
         default=datetime.utcnow
     )
+    
+    employee = db.relationship(
+        "Employee",
+        backref="payrolls"
+    )

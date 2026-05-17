@@ -14,3 +14,8 @@ class Employee(db.Model):
     
     department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable = False)
     
+    attendances = db.relationship(
+        "Attendance",
+        backref="employee",
+        cascade="all, delete-orphan"
+    )

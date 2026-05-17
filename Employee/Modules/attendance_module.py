@@ -46,7 +46,7 @@ class Attendance(db.Model):
         default=0
     )
 
-    employee = db.relationship(
-        "Employee",
-        backref="attendances"
-    )
+    # employee = db.relationship(
+    #     "Employee",
+    #     backref="attendances"
+    # )

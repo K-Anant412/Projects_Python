@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Namespace, Resource, fields, reqparse
 from werkzeug.datastructures import FileStorage
 from Utils.Check_role import check_role
-from Services.employee_service import (create_employee, search_emp, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee, get_emp_by_salary, sort_emp, emp_pdf, upload_emp)
+from Services.employee_service import (create_employee, search_emp, get_all_employees, get_emp_by_id, update_emp_by_id,delete_employee, get_emp_by_salary, sort_emp, emp_pdf, upload_emp, ui_show_employee)
 
 employee_route = Namespace("employees", description="show all employee's", path='/employee')
 employee_model = employee_route.model("Employee",{
@@ -100,7 +100,7 @@ class update_employee(Resource):
         data = request.get_json()
         return update_emp_by_id(id, data)
     
-@employee_route.route("/delete_employee/<int:id>")# remove employee by ID__
+@employee_route.route("/delete_employee/<int:id>", methods=["DELETE"])# remove employee by ID__
 class delete_emp(Resource):
     @employee_route.param("id", "Employee ID", _in="path", required=True)
     # @check_role(["superadmin"])                       
@@ -126,3 +126,8 @@ class upload_employee(Resource):
         args = parser.parse_args()
         f = args["file"]
         return upload_emp(f)
+    
+@employee_route.route("/show_all_employees", methods=["GET"])
+class show_all_employee(Resource):
+    def get(self):
+        return ui_show_employee()

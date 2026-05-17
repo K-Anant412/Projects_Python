@@ -4,6 +4,7 @@ from Utils.Response import error_response, success_response
 # from Utils.Check_role import check_superadmin
 from Utils.Validation import employee_validation
 from Modules.employee_module import Employee
+from Modules.attendance_module import Attendance
 from Modules.department_module import Department
 from reportlab.platypus import SimpleDocTemplate, Table
 from io import BytesIO
@@ -183,13 +184,25 @@ def update_emp_by_id(id, data):
 def delete_employee(id):
     try:
         emp = db.session.get(Employee, id)
+
         if not emp:
-            return error_response("Employee not found")
+            return error_response("Employee not found"), 404
+
+        Attendance.query.filter_by(
+            employee_id=id
+        ).delete()
+
         db.session.delete(emp)
         db.session.commit()
-        return success_response("Employee was deleted")
+
+        return success_response("Employee was deleted"), 200
+
     except Exception as e:
-        return error_response(str(e))
+        db.session.rollback()
+
+        print("DELETE ERROR:", e)
+
+        return error_response(str(e), status_code=500)
     
 def emp_pdf():
     try:
@@ -308,5 +321,28 @@ def upload_emp(f):
         db.session.commit()
         
         return success_response("Employee's added")
+    except Exception as e:
+        return error_response(str(e))
+    
+def ui_show_employee():
+    try:
+        employees = Employee.query.all()
+
+        data = []
+
+        for emp in employees:
+            data.append({
+                "id": emp.id,
+                "name": emp.name,
+                "city": emp.city,
+                "salary": emp.salary,
+                "email": emp.email,
+                "department": emp.department.name if emp.department else "N/A"
+            })
+
+        return success_response(
+            "All employees fetched",
+            data
+        )
     except Exception as e:
         return error_response(str(e))
